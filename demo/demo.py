@@ -1,18 +1,22 @@
-import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
+import streamlit as st
 
 # Per eseguire:
 # streamlit run FutureGame/demo/demo.py
 
-# Carica il modello addestrato
+# Carico il modello addestrato
 model = joblib.load("FutureGame/addestramentoModello/Modello/rf_model_future_game.pkl")
+# Carico le mappe di frequenza salvate
+freq_map_pub = joblib.load("FutureGame/addestramentoModello/map/freq_map_pub.pkl")
+freq_map_dev = joblib.load("FutureGame/addestramentoModello/map/freq_map_dev.pkl")
+freq_map_genre = joblib.load("FutureGame/addestramentoModello/map/freq_map_genre.pkl")
 
-# Lista di tutte le feature usate dal modello
+# Lista di tutte le variabili usate dal modello
 FEATURES = [
     'required_age', 'achievements', 'platform_count', 'is_free', 'price_log', 'trimester',
-    'genre_top1_freq', 'genre_top2_freq', 'genre_Indie', 'genre_Action', 'genre_Adventure',
+    'top1_genre_freq', 'top2_genre_freq', 'genre_Indie', 'genre_Action', 'genre_Adventure',
     'genre_Casual', 'genre_Free To Play', 'genre_RPG', 'genre_Strategy', 'genre_Simulation',
     'genre_Early Access', 'genre_Massively Multiplayer', 'genre_Sports', 'genre_Racing',
     'cat_Captions available', 'cat_Co-op', 'cat_Cross-Platform Multiplayer',
@@ -37,13 +41,19 @@ FEATURES = [
     'dev_top_Winged Cloud', 'dev_top_other'
 ]
 
-st.title(" Predizione Successo Videogioco (Demo)")
+st.title(" Predizione Successo Videogioco")
 
-# Input base
-title = st.text_input("Titolo del gioco (solo per visualizzazione)")
-required_age = st.number_input("Età minima richiesta", min_value=0, max_value=21, step=1)
-achievements = st.number_input("Numero achievements", min_value=0, step=1)
-platform_count = st.slider("Numero piattaforme supportate", 1, 3, 1)
+# Path immagine Logo
+image_path = "FutureGame/img/logoFutureGame.png"
+
+# Mostra immagine Logo Progetto
+st.image(image_path, caption="Future Game", use_container_width=True)
+
+# Input utente semplici
+title = st.text_input("Titolo del gioco: (solo per visualizzazione)")
+required_age = st.number_input("Età minima richiesta:", min_value=0, max_value=21, step=1)
+achievements = st.number_input("Numero achievements Steam:", min_value=0, step=1)
+platform_count = st.slider("Numero piattaforme supportate:", 1, 3, 1)
 price = st.number_input("Prezzo (€)", min_value=0.0, max_value=200.0, step=0.1)
 if price == 0.0:
     is_free = st.checkbox("Free-to-Play", value=True)
@@ -51,30 +61,45 @@ else:
     is_free = False
 trimester = st.selectbox("Trimestre di uscita (1=Dic,Gen,Feb) (2=Mar,Apr,Mag) (3=Giu,Lug,Ago) (4=Set,Ott,Nov)", [1, 2, 3, 4])
 
-# Variabili numeriche da frequenze
-publishers_freq = st.number_input("Publisher frequency (conteggio giochi dello stesso publisher)", min_value=0, step=1)
-developer_freq = st.number_input("Developer frequency (conteggio giochi dello stesso developer)", min_value=0, step=1)
-genre_top1_freq = st.number_input("Frequenza globale del genere top1", min_value=0, step=1)
-genre_top2_freq = st.number_input("Frequenza globale del genere top2", min_value=0, step=1)
+# Generi
+## selezione multipla per generi
+genres = st.multiselect("Seleziona i generi del gioco", options=list(freq_map_genre.keys()))
+### Calcolo dei top1 e top2
+if genres:
+    ordered = sorted(genres, key=lambda g: -freq_map_genre.get(g, 0))
+    top1 = ordered[0]
+    top2 = ordered[1] if len(ordered) > 1 else None
+else:
+    top1 = 0
+    top2 = 0
 
-# Sezioni multi-selezione per generi e categorie
-top_genres = [g for g in FEATURES if g.startswith("genre_")]
-selected_genres = st.multiselect("Generi principali", top_genres)
+# Categorie: selezione multipla per Categorie
 top_cats = [c for c in FEATURES if c.startswith("cat_")]
 selected_cats = st.multiselect("Categorie", top_cats)
 
-# Publisher e developer top
-top_publishers = [p for p in FEATURES if p.startswith("pub_top_")]
-selected_pub = st.selectbox("Publisher principale", top_publishers)
+# Developer
+developer = st.selectbox("Developer principale", options=list(freq_map_dev.keys()))
+# Frequenze calcolate come nel preprocessing:
+developer_freq = freq_map_dev.get(developer, 0)
+st.write("Developer freq:", developer_freq) # stampa per l'utente
 top_devs = [d for d in FEATURES if d.startswith("dev_top_")]
-selected_dev = st.selectbox("Developer principale", top_devs)
+selected_dev = st.selectbox("Developer principale - (selezionare se presente)", top_devs)
+
+# Publisher
+publisher = st.selectbox("Publisher principale", options=list(freq_map_pub.keys()))
+# Frequenze calcolate come nel preprocessing:
+publishers_freq = freq_map_pub.get(publisher, 0)
+st.write("Publisher freq:", publishers_freq) # stampa per l'utente
+top_publishers = [p for p in FEATURES if p.startswith("pub_top_")]
+selected_pub = st.selectbox("Publisher - (selezionare se presente)", top_publishers)
+
 
 # Button
 if st.button("Predici successo"):
     # Trasforma input in dict di feature
     row = {col: 0 for col in FEATURES}
 
-    # Variabili base
+    # Caricamento variabili
     row["required_age"] = required_age
     row["achievements"] = achievements
     row["platform_count"] = platform_count
@@ -83,12 +108,23 @@ if st.button("Predici successo"):
     row["trimester"] = trimester
     row["publishers_freq"] = publishers_freq
     row["developer_freq"] = developer_freq
-    row["genre_top1_freq"] = genre_top1_freq
-    row["genre_top2_freq"] = genre_top2_freq
+
+    # Caricamento top1 e top2
+    if genres:
+        ordered = sorted(genres, key=lambda g: -freq_map_genre.get(g, 0))
+        top1 = ordered[0]
+        top2 = ordered[1] if len(ordered) > 1 else None
+        row["top1_genre_freq"] = freq_map_genre.get(top1, 0)
+        row["top2_genre_freq"] = freq_map_genre.get(top2, 0) if top2 else 0
+    else:
+        row["top1_genre_freq"] = 0
+        row["top2_genre_freq"] = 0
 
     # Generi e categorie -> 1 se selezionati
-    for g in selected_genres:
-        row[g] = 1
+    ## i generi hanno bisogno di aggiungere prefisso per essere come dataset
+    for g in genres:
+        row[f"genre_{g}"] = 1 if g in genres else 0
+    # categorie già come le vaariabili del ds
     for c in selected_cats:
         row[c] = 1
 
