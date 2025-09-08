@@ -1,7 +1,7 @@
 import ast
 import pandas as pd
 
-# Parser robusto: assicura che ogni cella diventi una LISTA di generi
+# Parser robusto: assicura che ogni cella diventi una lista di generi
 def parse_fromString_toList(x):
     if isinstance(x, list):
         return [str(s).strip() for s in x if str(s).strip() != ""]
@@ -24,3 +24,24 @@ def parse_fromString_toList(x):
         return [s.strip("'").strip('"')]
     # qualunque altro tipo sconosciuto
     return []
+
+# estrae primo valore dalla cella (tipo lista)
+def estrai_primo(val):
+    # caso missing
+    if pd.isna(val):
+        return None
+    # caso stringa che rappresenta lista
+    if isinstance(val, str):
+        try:
+            parsed = ast.literal_eval(val)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                return parsed[0]   # primo elemento
+            else:
+                return None        # lista vuota
+        except Exception:
+            return val  # fallback: magari era già stringa semplice
+    # caso lista già vera
+    if isinstance(val, list):
+        return val[0] if len(val) > 0 else None
+    # fallback generico
+    return None
