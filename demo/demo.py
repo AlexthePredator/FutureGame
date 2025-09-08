@@ -47,10 +47,10 @@ st.title(" Predizione Successo Videogioco")
 image_path = "FutureGame/img/logoFutureGame.png"
 
 # Mostra immagine Logo Progetto
-st.image(image_path, caption="Future Game", use_container_width=True)
+st.image(image_path, caption="Future Game", width='content')
 
 # Input utente semplici
-title = st.text_input("Titolo del gioco: (solo per visualizzazione)")
+title = st.text_input("Titolo del gioco:")
 required_age = st.number_input("Età minima richiesta:", min_value=0, max_value=21, step=1)
 achievements = st.number_input("Numero achievements Steam:", min_value=0, step=1)
 platform_count = st.slider("Numero piattaforme supportate:", 1, 3, 1)
@@ -64,7 +64,7 @@ trimester = st.selectbox("Trimestre di uscita (1=Dic,Gen,Feb) (2=Mar,Apr,Mag) (3
 # Generi
 ## selezione multipla per generi
 genres = st.multiselect("Seleziona i generi del gioco", options=list(freq_map_genre.keys()))
-### Calcolo dei top1 e top2
+### Calcolo dei top1 e top2 (ordine)
 if genres:
     ordered = sorted(genres, key=lambda g: -freq_map_genre.get(g, 0))
     top1 = ordered[0]
@@ -72,6 +72,11 @@ if genres:
 else:
     top1 = 0
     top2 = 0
+# calcolo le frequenze del top1  e top2
+top1_freq = freq_map_genre.get(top1, 0) # uso per riempire riga
+top2_freq = freq_map_genre.get(top2, 0) if top2 else 0 # uso per riempire riga
+st.write("Genere top 1: -", top1, " - freq: ", top1_freq)
+st.write("Genere top 2: -", top2, "  - freq: ", top2_freq)
 
 # Categorie: selezione multipla per Categorie
 top_cats = [c for c in FEATURES if c.startswith("cat_")]
@@ -111,11 +116,8 @@ if st.button("Predici successo"):
 
     # Caricamento top1 e top2
     if genres:
-        ordered = sorted(genres, key=lambda g: -freq_map_genre.get(g, 0))
-        top1 = ordered[0]
-        top2 = ordered[1] if len(ordered) > 1 else None
-        row["top1_genre_freq"] = freq_map_genre.get(top1, 0)
-        row["top2_genre_freq"] = freq_map_genre.get(top2, 0) if top2 else 0
+        row["top1_genre_freq"] = top1_freq
+        row["top2_genre_freq"] = top2_freq
     else:
         row["top1_genre_freq"] = 0
         row["top2_genre_freq"] = 0
@@ -139,7 +141,7 @@ if st.button("Predici successo"):
 
     # Predizione
     y_pred = model.predict(X_new)[0]
-    labels = ["insuccesso", "basso_successo", "medio_successo", "alto_successo"]
+    labels = ["insuccesso", "basso successo", "medio successo", "alto successo"]
 
     st.success(f" Risultato per '{title}': **{labels[y_pred]}**")
 
