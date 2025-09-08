@@ -47,7 +47,8 @@ platform_count = st.slider("Numero piattaforme supportate", 1, 3, 1)
 price = st.number_input("Prezzo (€)", min_value=0.0, max_value=200.0, step=0.1)
 if price == 0.0:
     is_free = st.checkbox("Free-to-Play", value=True)
-else: is_free = False
+else:
+    is_free = False
 trimester = st.selectbox("Trimestre di uscita (1=Dic,Gen,Feb) (2=Mar,Apr,Mag) (3=Giu,Lug,Ago) (4=Set,Ott,Nov)", [1, 2, 3, 4])
 
 # Variabili numeriche da frequenze
