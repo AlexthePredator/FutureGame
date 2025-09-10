@@ -55,12 +55,12 @@ title = st.text_input("Titolo del gioco:")
 required_age = st.number_input("Età minima richiesta:", min_value=0, max_value=21, step=1)
 achievements = st.number_input("Numero achievements Steam:", min_value=0, step=1)
 platform_count = st.slider("Numero piattaforme supportate:", 1, 3, 1)
-price = st.number_input("Prezzo (€)", min_value=0.0, max_value=200.0, step=0.1)
+price = st.number_input("Prezzo (€):", min_value=0.0, max_value=200.0, step=0.1)
 if price == 0.0:
     is_free = st.checkbox("Free-to-Play", value=True)
 else:
     is_free = False
-trimester = st.selectbox("Trimestre di uscita (1=Dic,Gen,Feb) (2=Mar,Apr,Mag) (3=Giu,Lug,Ago) (4=Set,Ott,Nov)", [1, 2, 3, 4])
+trimester = st.selectbox("Trimestre di uscita: (1=Dic,Gen,Feb) (2=Mar,Apr,Mag) (3=Giu,Lug,Ago) (4=Set,Ott,Nov)", [1, 2, 3, 4])
 
 # Generi
 ## selezione multipla per generi
@@ -81,15 +81,15 @@ st.write("Genere top 2: -", top2, "  - freq: ", top2_freq)
 
 # Categorie: selezione multipla per Categorie
 top_cats = [c for c in FEATURES if c.startswith("cat_")]
-selected_cats = st.multiselect("Categorie", top_cats)
+selected_cats = st.multiselect("Categorie:", top_cats)
 
 # Developer
-developer = st.selectbox("Developer principale", options=list(freq_map_dev.keys()))
+developer = st.selectbox("Developer principale:", options=list(freq_map_dev.keys()))
 # Frequenze calcolate come nel preprocessing:
 developer_freq = freq_map_dev.get(developer, 0)
 st.write("Developer freq:", developer_freq) # stampa per l'utente
 top_devs = [d for d in FEATURES if d.startswith("dev_top_")]
-selected_dev = st.selectbox("Developer principale - (selezionare se presente)", top_devs)
+selected_dev = st.selectbox("Tutti i Developers - (selezionare se presente)", top_devs)
 
 # Publisher
 publisher = st.selectbox("Publisher principale", options=list(freq_map_pub.keys()))
@@ -97,7 +97,7 @@ publisher = st.selectbox("Publisher principale", options=list(freq_map_pub.keys(
 publishers_freq = freq_map_pub.get(publisher, 0)
 st.write("Publisher freq:", publishers_freq) # stampa per l'utente
 top_publishers = [p for p in FEATURES if p.startswith("pub_top_")]
-selected_pub = st.selectbox("Publisher - (selezionare se presente)", top_publishers)
+selected_pub = st.selectbox("Tutti i Publishers - (selezionare se presente)", top_publishers)
 
 
 # Button
@@ -138,11 +138,11 @@ if st.button("Predici successo"):
         row[selected_dev] = 1
 
     # Crea DataFrame
-    X_new = pd.DataFrame([row])
+    X_demo = pd.DataFrame([row])
 
     # Predizione
-    y_pred = model.predict(X_new)[0]
+    y_pred = model.predict(X_demo)[0]
     labels = ["insuccesso", "basso successo", "medio successo", "alto successo"]
 
-    st.success(f" Risultato per '{title}': **{labels[y_pred]}**")
+    st.success(f" Risultato per il gioco '{title}':  **{labels[y_pred]}**")
 
