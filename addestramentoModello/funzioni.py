@@ -1,7 +1,8 @@
 import ast
 import pandas as pd
 
-# Parser robusto: assicura che ogni cella diventi una lista di generi
+# Parser : ogni cella diventi una lista di generi 
+# (da stringa ottenuta dal dataset a lista)
 def parse_fromString_toList(x):
     if isinstance(x, list):
         return [str(s).strip() for s in x if str(s).strip() != ""]
