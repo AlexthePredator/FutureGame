@@ -4,14 +4,15 @@ import joblib
 import streamlit as st
 
 # Per eseguire:
-# streamlit run FutureGame/demo/demo.py
+# streamlit run demo/demo.py
+# Da eseguire dalla directory FutureGame: cd .\FutureGame\
 
 # Carico il modello addestrato
-model = joblib.load("FutureGame/addestramentoModello/Modello/rf_model_future_game.pkl")
+model = joblib.load("addestramentoModello/Modello/rf_model_future_game.pkl")
 # Carico le mappe di frequenza salvate
-freq_map_pub = joblib.load("FutureGame/addestramentoModello/map/freq_map_pub.pkl")
-freq_map_dev = joblib.load("FutureGame/addestramentoModello/map/freq_map_dev.pkl")
-freq_map_genre = joblib.load("FutureGame/addestramentoModello/map/freq_map_genre.pkl")
+freq_map_pub = joblib.load("addestramentoModello/map/freq_map_pub.pkl")
+freq_map_dev = joblib.load("addestramentoModello/map/freq_map_dev.pkl")
+freq_map_genre = joblib.load("addestramentoModello/map/freq_map_genre.pkl")
 
 # Lista di tutte le variabili usate dal modello
 FEATURES = [
@@ -44,7 +45,7 @@ FEATURES = [
 st.title(" Predizione Successo Videogioco")
 
 # Path immagine Logo
-image_path = "FutureGame/img/logoFutureGame.png"
+image_path = "img/logoFutureGame.png"
 
 # Mostra immagine Logo Progetto
 st.image(image_path, caption="Future Game", width='content')
