@@ -16,7 +16,7 @@
 <div>
   <h3>Scopo del progetto:</h3>
   Il progetto Future Game nasce per simulare un prodotto basato su AI che un'eventuale azienda videoludica potrebbe acquistare per avere una previsione del successo pre-lancio del loro nuovo gioco che vorrebbero mettere in commercio. </br>
-  Prende un dataset con i dati storici dei giochi pubblicati su steam per addestramento e valutazione del modello.
+  Prende un dataset con i dati storici dei giochi pubblicati su <a href="https://store.steampowered.com">Steam</a> per addestramento e valutazione del modello.
 </div>
 </br>
 <hr>
