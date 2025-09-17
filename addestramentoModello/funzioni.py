@@ -1,5 +1,7 @@
 import ast
 import pandas as pd
+import re
+import string
 
 # Parser : ogni cella diventi una lista di generi 
 # (da stringa ottenuta dal dataset a lista)
@@ -46,3 +48,14 @@ def estrai_primo(val):
         return val[0] if len(val) > 0 else None
     # fallback generico
     return None
+
+def formatta_testo(text):
+    # Sostituisci tutti gli spazi (anche multipli) con "_"
+    text = re.sub(r'\s+', '_', text)
+    # Rimuovi la punteggiatura
+    text = text.translate(str.maketrans('', '', string.punctuation))
+    # Rimuovi i numeri
+    #text = re.sub(r'\d+', '', text)
+    # Rimuovi i caratteri speciali e simboli (ma lascia gli "_")
+    text = re.sub(r'[^a-zA-Z_]', '', text)
+    return text

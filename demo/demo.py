@@ -9,6 +9,7 @@ import streamlit as st
 
 # Carico il modello addestrato
 model = joblib.load("addestramentoModello/Modello/rf_model_future_game.pkl")
+#model = joblib.load("addestramentoModello/Modello/rf_model_future_game_1.pkl")
 # Carico le mappe di frequenza salvate
 freq_map_pub = joblib.load("addestramentoModello/map/freq_map_pub.pkl")
 freq_map_dev = joblib.load("addestramentoModello/map/freq_map_dev.pkl")
@@ -145,4 +146,12 @@ if st.button("Predici successo"):
     labels = ["insuccesso", "basso successo", "medio successo", "alto successo"]
 
     st.success(f" Risultato per il gioco '{title}':  **{labels[y_pred]}**")
+
+    # Probabilità associate a tutte le classi
+    y_proba = model.predict_proba(X_demo)[0]  # restituisce array con le % per ogni classe
+
+    # Mostra tutte le probabilità
+    st.write("### Probabilità per ogni classe:")
+    for i, p in enumerate(y_proba):
+        st.write(f"Classe {i}: {p:.2%}")
 
